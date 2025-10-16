@@ -98,26 +98,28 @@ class PublicCatalogController extends Controller
         // пагинация категорий
         $categories = ProductCategory::whereNull('parent_id')
             ->orderBy('title')
-            ->paginate($perPage);
+            ->paginate($perPage, ['*'], 'page', $request->query('page', 1));
 
-        $data = $categories->map(function ($category) use ($productsPerCategory) {
-            // продукты внутри категории, paginated(6)
-            $products = $category->products()
+        $productPage = (int)$request->query('productPage', 1); // отдельный параметр для продуктов
+
+        $data = $categories->map(function ($category) use ($productsPerCategory, $productPage) {
+            // пагинация продуктов внутри каждой категории
+            $productsPaginator = $category->products()
                 ->orderBy('title')
-                ->paginate($productsPerCategory);
+                ->paginate($productsPerCategory, ['*'], 'productPage', $productPage);
 
             return [
                 'id' => $category->id,
                 'title' => $category->title,
-                // продукты
-                'products' => $products->map(function ($p) {
-                    return [
-                        'id' => $p->id,
-                        'title' => $p->title,
-                        'slug' => $p->slug,
-                        'description' => $p->description,
-                    ];
-                }),
+                'products' => [
+                    'data' => ProductResource::collection($productsPaginator->items()),
+                    'meta' => [
+                        'current_page' => $productsPaginator->currentPage(),
+                        'last_page' => $productsPaginator->lastPage(),
+                        'per_page' => $productsPaginator->perPage(),
+                        'total' => $productsPaginator->total(),
+                    ],
+                ],
             ];
         });
 
@@ -129,8 +131,15 @@ class PublicCatalogController extends Controller
                 'per_page' => $categories->perPage(),
                 'total' => $categories->total(),
             ],
+            'links' => [
+                'first' => $categories->url(1),
+                'last' => $categories->url($categories->lastPage()),
+                'next' => $categories->nextPageUrl(),
+                'prev' => $categories->previousPageUrl(),
+            ]
         ]);
     }
+
 
     /**
      * Рекурсивно строит дерево из коллекции узлов.

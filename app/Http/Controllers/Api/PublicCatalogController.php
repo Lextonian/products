@@ -76,11 +76,6 @@ class PublicCatalogController extends Controller
             ]
         ]);
     }
-    /**
-     * Build tree from the given collection of categories
-     * @param  \Illuminate\Support\Collection $categories
-     * @return  array
-     */
 
     /**
      * GET /api/public/product_categories_with_products

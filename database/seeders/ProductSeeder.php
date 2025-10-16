@@ -13,6 +13,10 @@ class ProductSeeder extends Seeder
         // создаём 80 продуктов и рандомно привязываем к категориям
         $allCategoryIds = ProductCategory::pluck('id')->all();
 
+        if (empty($allCategoryIds)) {
+            return;
+        }
+
         Product::factory()
             ->count(80)
             ->make()

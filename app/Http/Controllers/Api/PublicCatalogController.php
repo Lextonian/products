@@ -35,6 +35,7 @@ class PublicCatalogController extends Controller
      * @param  \App\Models\Product  $product
      * @return  \App\Http\Resources\ProductResource
      */
+
     public function product(Product $product): ProductResource
     {
         // Возвращает ресурс продукта
@@ -134,7 +135,6 @@ class PublicCatalogController extends Controller
             ]
         ]);
     }
-
 
     /**
      * Рекурсивно строит дерево из коллекции узлов.
